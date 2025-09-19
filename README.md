@@ -8,7 +8,7 @@ Install local k8s cluster with:
 </div>
 
 - k3d
-- calico cni
+- cilium cni
 - metallb
 - nginx-ingress-controller
 
@@ -61,27 +61,16 @@ export KUBECONFIG=~/.kube/cluster-k3d-first
 ```
 kubectl get ns
 ```
-#### 5. Install Calico Component:
+#### 5. Install Cilium Component:
 ```
-kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.1/manifests/tigera-operator.yaml
+helm upgrade --install --atomic cilium cilium/cilium --version 1.15.6 --namespace=kube-system --values=./cilium-values.yaml
 ```
-   - Note: Check the files: `manifests/calico/installation.yaml` and `./cluster.yaml`
-  
-*cidr* into `manifests/calico/installation.yaml` and *--cluster-cidr=192.168.0.0/16* into ./cluster.yaml should be the same
-```
-kubectl apply -f  $PWD/manifests/calico/installation.yaml
-```
-*And wait when all pods will be ready:*
-![](Docs/static/pod_status.png)
 #### 6. Install Metallb into cluster
 ```
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/metallb-native.yaml
 ```
 ```
-cd $PWD/scripts
-chmod +x metallb.sh
-./metallb.sh cluster-k3d-first
-cd ..
+kubectl apply -f metallb.sh    
 ```
 #### 7. Create PV storage and coreDns
 ```
@@ -111,7 +100,7 @@ kubectl get ingress -A
 ```
 ![](Docs/static/ingress.png)
 ```
-curl -v -H "Host: test-hello.dyn.example.com" http://172.17.0.100
+curl -v -H "Host: test-hello.dyn.example.com" http://<Адрес ingress балансера из команды kubectl get ingress -A>
 ```
 ![](Docs/static/curl_request.png)
 ___
