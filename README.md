@@ -65,6 +65,7 @@ k3d cluster create -c  ./cluster.yaml --verbose
 ```
 
 - #### List clusters:
+
 ```
 k3d cluster list
 ```
@@ -77,6 +78,7 @@ export KUBECONFIG=~/.kube/cluster-k3d-first
 ```
 
 - #### Check availability:
+
 ```
 kubectl get ns
 ```
@@ -106,7 +108,20 @@ kubectl -n kube-system get ds cilium
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.2/config/manifests/metallb-native.yaml
 ```
 
-- #### Configure IP range (example for Docker bridge network 172.17.0.0/16):
+- #### Determine your network range
+
+```
+docker network inspect k3d-cluster-k3d-first
+```
+- #### Example output:
+```
+{
+    "Subnet": "172.17.0.0/16",
+    "Gateway": "172.17.0.1"
+}
+```
+
+- #### Update Metallb configuration
 
 ```
 ---
@@ -118,7 +133,7 @@ metadata:
 spec:
 # IP address range within the Docker or Orbstack network
   addresses:
-    - 192.168.97.200-192.168.97.250  
+    - 172.17.0.200-172.17.0.250  
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
